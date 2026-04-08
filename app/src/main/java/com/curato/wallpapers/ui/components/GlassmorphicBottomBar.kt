@@ -29,18 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curato.wallpapers.ui.navigation.TabDestination
-import com.curato.wallpapers.ui.theme.GlassBorder
 import com.curato.wallpapers.ui.theme.InterFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.PrimaryContainer
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Floating glassmorphic bottom nav bar driven by [TabDestination] contract.
- *
- * Open/Closed: reads [destinations] — adding a new tab requires zero changes here.
- * Active tab: purple filled circle (48dp) with selected icon, no label.
- * Inactive tabs: unselected icon + label at 60% opacity.
- */
 @Composable
 fun GlassmorphicBottomBar(
     destinations: List<TabDestination>,
@@ -48,6 +39,7 @@ fun GlassmorphicBottomBar(
     onDestinationSelected: (TabDestination) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = curatoColors
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -55,8 +47,8 @@ fun GlassmorphicBottomBar(
             .padding(horizontal = 20.dp)
             .height(72.dp)
             .clip(RoundedCornerShape(percent = 50))
-            .background(com.curato.wallpapers.ui.theme.GlassSurface)
-            .border(0.5.dp, GlassBorder, RoundedCornerShape(percent = 50)),
+            .background(colors.glassSurface)
+            .border(0.5.dp, colors.glassBorder, RoundedCornerShape(percent = 50)),
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -80,6 +72,7 @@ private fun BottomBarItem(
     isSelected: Boolean,
     onClick: () -> Unit,
 ) {
+    val colors = curatoColors
     val scale by animateFloatAsState(
         targetValue = if (isSelected) 1.1f else 1f,
         animationSpec = spring(
@@ -103,7 +96,7 @@ private fun BottomBarItem(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(PrimaryContainer),
+                    .background(colors.primaryContainer),
             ) {
                 Icon(
                     imageVector = destination.selectedIcon,
@@ -120,7 +113,7 @@ private fun BottomBarItem(
                 Icon(
                     imageVector = destination.icon,
                     contentDescription = destination.label,
-                    tint = OnSurface.copy(alpha = 0.6f),
+                    tint = colors.onSurface.copy(alpha = 0.6f),
                     modifier = Modifier.size(20.dp),
                 )
                 Text(
@@ -129,7 +122,7 @@ private fun BottomBarItem(
                     fontWeight = FontWeight.Medium,
                     fontSize = 10.sp,
                     letterSpacing = 0.25.sp,
-                    color = OnSurface.copy(alpha = 0.6f),
+                    color = colors.onSurface.copy(alpha = 0.6f),
                 )
             }
         }

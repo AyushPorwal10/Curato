@@ -14,14 +14,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curato.wallpapers.ui.theme.InterFontFamily
 import com.curato.wallpapers.ui.theme.ManropeFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.Primary
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Section header — eyebrow label + bold title + optional "See all" action.
- * Matches "CURATED SELECTION / Trending / See all" pattern from Figma.
- */
 @Composable
 fun SectionHeader(
     title: String,
@@ -31,6 +25,7 @@ fun SectionHeader(
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null,
 ) {
+    val colors = curatoColors
     Row(
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -44,7 +39,7 @@ fun SectionHeader(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 12.sp,
                     letterSpacing = 1.2.sp,
-                    color = Primary,
+                    color = colors.primary,
                 )
             }
             Text(
@@ -53,7 +48,7 @@ fun SectionHeader(
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 28.sp,
                 letterSpacing = (-0.75).sp,
-                color = OnSurface,
+                color = colors.onSurface,
             )
             subtitle?.let {
                 Text(
@@ -61,7 +56,7 @@ fun SectionHeader(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.Normal,
                     fontSize = 14.sp,
-                    color = OnSurfaceVariant,
+                    color = colors.onSurfaceVariant,
                 )
             }
         }
@@ -72,7 +67,7 @@ fun SectionHeader(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
-                    color = Primary,
+                    color = colors.primary,
                 )
             }
         }

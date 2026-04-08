@@ -16,26 +16,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curato.wallpapers.domain.model.WallpaperCategory
 import com.curato.wallpapers.ui.theme.InterFontFamily
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.Primary
-import com.curato.wallpapers.ui.theme.SurfaceContainerHigh
+import com.curato.wallpapers.ui.theme.curatoColors
 
 private val ChipShape = RoundedCornerShape(percent = 50)
+private val SelectedChipText = Color(0xFF370096)
 
-// Selected chip bg is Primary (#CDBDFF), text is deep purple
-private val SelectedChipBg = Primary
-private val SelectedChipText = androidx.compose.ui.graphics.Color(0xFF370096)
-
-/**
- * Filter chip for wallpaper categories.
- * Selected: Primary fill + dark text + 1.05x scale spring.
- * Unselected: SurfaceContainerHigh fill + OnSurfaceVariant text.
- */
 @Composable
 fun CategoryChip(
     category: WallpaperCategory,
@@ -43,13 +34,14 @@ fun CategoryChip(
     onSelect: (WallpaperCategory) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = curatoColors
     val bg by animateColorAsState(
-        targetValue = if (selected) SelectedChipBg else SurfaceContainerHigh,
+        targetValue = if (selected) colors.primary else colors.surfaceContainerHigh,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "chip_bg",
     )
     val textColor by animateColorAsState(
-        targetValue = if (selected) SelectedChipText else OnSurfaceVariant,
+        targetValue = if (selected) SelectedChipText else colors.onSurfaceVariant,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "chip_text",
     )

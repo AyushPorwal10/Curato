@@ -30,27 +30,28 @@ import com.curato.wallpapers.ui.components.CuratoTopBar
 import com.curato.wallpapers.ui.components.SectionHeader
 import com.curato.wallpapers.ui.components.TrendingCard
 import com.curato.wallpapers.ui.components.WallpaperCard
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.Primary
+import com.curato.wallpapers.ui.theme.curatoColors
 
 @Composable
 fun HomeScreen(
     onWallpaperClick: (String) -> Unit,
+    onSeeAllTrending: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val colors = curatoColors
     Box(modifier = modifier.fillMaxSize()) {
         when (val state = uiState) {
             is UiState.Loading -> CircularProgressIndicator(
-                color = Primary,
+                color = colors.primary,
                 modifier = Modifier.align(Alignment.Center),
             )
 
             is UiState.Error -> Text(
                 text = state.message,
-                color = OnSurface,
+                color = colors.onSurface,
                 modifier = Modifier.align(Alignment.Center),
             )
 
@@ -72,7 +73,7 @@ fun HomeScreen(
                             title = "Trending",
                             eyebrow = "Curated Selection",
                             actionLabel = "See all",
-                            onAction = {},
+                            onAction = onSeeAllTrending,
                             modifier = Modifier.padding(horizontal = 24.dp),
                         )
                         Spacer(Modifier.height(16.dp))
@@ -152,7 +153,7 @@ fun HomeScreen(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier.padding(16.dp),
                             ) {
-                                CircularProgressIndicator(color = Primary)
+                                CircularProgressIndicator(color = colors.primary)
                             }
                         }
                     }

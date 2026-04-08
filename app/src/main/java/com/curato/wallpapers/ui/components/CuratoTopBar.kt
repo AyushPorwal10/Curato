@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Search
@@ -19,15 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curato.wallpapers.ui.theme.ManropeFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.SurfaceBase
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Standard top app bar — app name + search icon.
- * Height: 64dp, horizontal padding: 24dp.
- * bg: SurfaceBase (#131314) to match Figma.
- */
 @Composable
 fun CuratoTopBar(
     title: String,
@@ -37,11 +31,13 @@ fun CuratoTopBar(
     showSearch: Boolean = true,
     onSearch: (() -> Unit)? = null,
 ) {
+    val colors = curatoColors
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
             .fillMaxWidth()
+            .statusBarsPadding()
             .height(64.dp)
             .padding(horizontal = 16.dp),
     ) {
@@ -51,7 +47,7 @@ fun CuratoTopBar(
                     Icon(
                         imageVector = Icons.Rounded.ArrowBackIosNew,
                         contentDescription = "Back",
-                        tint = OnSurface,
+                        tint = colors.onSurface,
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -62,7 +58,7 @@ fun CuratoTopBar(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 letterSpacing = (-1).sp,
-                color = OnSurface,
+                color = colors.onSurface,
             )
         }
         if (showSearch) {
@@ -70,7 +66,7 @@ fun CuratoTopBar(
                 Icon(
                     imageVector = Icons.Rounded.Search,
                     contentDescription = "Search",
-                    tint = OnSurfaceVariant,
+                    tint = colors.onSurfaceVariant,
                     modifier = Modifier.size(22.dp),
                 )
             }

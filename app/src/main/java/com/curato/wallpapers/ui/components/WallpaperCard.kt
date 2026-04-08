@@ -2,7 +2,6 @@ package com.curato.wallpapers.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,31 +14,26 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.curato.wallpapers.domain.model.Wallpaper
 import com.curato.wallpapers.ui.theme.InterFontFamily
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.Primary
-import com.curato.wallpapers.ui.theme.SurfaceContainerLow
 import com.curato.wallpapers.ui.theme.WallpaperCardShape
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Standard 2-column grid card.
- * Image (3:4) → title + heart row underneath.
- * bg: SurfaceContainerLow (#1C1B1C), radius: 24dp
- */
 @Composable
 fun WallpaperCard(
     wallpaper: Wallpaper,
@@ -47,15 +41,25 @@ fun WallpaperCard(
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = curatoColors
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .clip(WallpaperCardShape)
-            .background(SurfaceContainerLow)
+            .background(colors.surfaceContainerLow)
             .clickable(onClick = onClick),
     ) {
-        // Wallpaper image — 3:4 aspect ratio
+        val request = remember(wallpaper.id) {
+            ImageRequest.Builder(context = context)
+                .data(wallpaper.previewUrl)
+                .crossfade(true)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .build()
+        }
+
         AsyncImage(
-            model = wallpaper.thumbnailUrl,
+            model = request,
             contentDescription = wallpaper.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -63,7 +67,6 @@ fun WallpaperCard(
                 .aspectRatio(3f / 4f),
         )
 
-        // Title + Favorite row
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -76,7 +79,7 @@ fun WallpaperCard(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 10.sp,
                 letterSpacing = (-0.5).sp,
-                color = OnSurfaceVariant,
+                color = colors.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
@@ -88,7 +91,7 @@ fun WallpaperCard(
                 Icon(
                     imageVector = if (wallpaper.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                     contentDescription = if (wallpaper.isFavorite) "Remove favorite" else "Add favorite",
-                    tint = if (wallpaper.isFavorite) Primary else OnSurfaceVariant,
+                    tint = if (wallpaper.isFavorite) colors.primary else colors.onSurfaceVariant,
                     modifier = Modifier.size(16.dp),
                 )
             }

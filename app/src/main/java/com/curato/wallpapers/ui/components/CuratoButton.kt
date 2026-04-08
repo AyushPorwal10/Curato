@@ -27,15 +27,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curato.wallpapers.ui.theme.BrandGradient
-import com.curato.wallpapers.ui.theme.GlassBorderLight
-import com.curato.wallpapers.ui.theme.GlassSurface
 import com.curato.wallpapers.ui.theme.InterFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Primary CTA — gradient fill, full pill shape.
- * Used for "Apply Wallpaper" on detail screen.
- */
 @Composable
 fun CuratoGradientButton(
     text: String,
@@ -50,7 +44,12 @@ fun CuratoGradientButton(
         modifier = modifier
             .height(52.dp)
             .clip(RoundedCornerShape(percent = 50))
-            .background(if (enabled) BrandGradient else androidx.compose.ui.graphics.Brush.linearGradient(listOf(Color(0xFF4A4A4A), Color(0xFF3A3A3A))))
+            .background(
+                if (enabled) BrandGradient
+                else androidx.compose.ui.graphics.Brush.linearGradient(
+                    listOf(Color(0xFF4A4A4A), Color(0xFF3A3A3A))
+                )
+            )
             .clickable(enabled = enabled && !isLoading, onClick = onClick)
             .padding(horizontal = 28.dp),
     ) {
@@ -86,10 +85,6 @@ fun CuratoGradientButton(
     }
 }
 
-/**
- * Glassmorphic icon button — circular, semi-transparent.
- * Used for back/share/info on detail screen.
- */
 @Composable
 fun GlassmorphicIconButton(
     icon: ImageVector,
@@ -98,21 +93,22 @@ fun GlassmorphicIconButton(
     modifier: Modifier = Modifier,
     size: Dp = 44.dp,
     iconSize: Dp = 20.dp,
-    tint: Color = OnSurface,
+    tint: Color? = null,
 ) {
+    val colors = curatoColors
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(GlassSurface)
-            .border(0.5.dp, GlassBorderLight, CircleShape)
+            .background(colors.glassSurface)
+            .border(0.5.dp, colors.glassBorderLight, CircleShape)
             .clickable(onClick = onClick),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = tint,
+            tint = tint ?: colors.onSurface,
             modifier = Modifier.size(iconSize),
         )
     }

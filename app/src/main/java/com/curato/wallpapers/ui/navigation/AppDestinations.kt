@@ -30,4 +30,6 @@ object AppDestinations {
     // ── Non-tab routes ─────────────────────────────────────────────────────
     const val DETAIL_ROUTE = "detail/{wallpaperId}"
     fun detailRoute(wallpaperId: String) = "detail/$wallpaperId"
+
+    const val TRENDING_ROUTE = "trending"
 }

@@ -19,24 +19,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.curato.wallpapers.domain.model.Wallpaper
-import com.curato.wallpapers.ui.theme.GlassBorder
-import com.curato.wallpapers.ui.theme.GlassSurface
 import com.curato.wallpapers.ui.theme.InterFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
 import com.curato.wallpapers.ui.theme.WallpaperCardShape
 import com.curato.wallpapers.ui.theme.WallpaperScrimGradient
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Hero card used in the horizontal trending row on Home.
- * 280dp wide, 2:3 aspect ratio.
- * Full-bleed image + bottom scrim + glassmorphic category pill.
- */
 @Composable
 fun TrendingCard(
     wallpaper: Wallpaper,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = curatoColors
     Box(
         modifier = modifier
             .width(280.dp)
@@ -44,7 +38,6 @@ fun TrendingCard(
             .clip(WallpaperCardShape)
             .clickable(onClick = onClick),
     ) {
-        // Full-bleed wallpaper image
         AsyncImage(
             model = wallpaper.previewUrl,
             contentDescription = wallpaper.title,
@@ -52,22 +45,20 @@ fun TrendingCard(
             modifier = Modifier.matchParentSize(),
         )
 
-        // Bottom scrim gradient
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .background(WallpaperScrimGradient),
         )
 
-        // Glassmorphic category pill — bottom-left
         wallpaper.category?.let { category ->
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(start = 16.dp, bottom = 12.dp)
                     .clip(RoundedCornerShape(percent = 50))
-                    .background(GlassSurface)
-                    .border(0.5.dp, GlassBorder, RoundedCornerShape(percent = 50))
+                    .background(colors.glassSurface)
+                    .border(0.5.dp, colors.glassBorder, RoundedCornerShape(percent = 50))
                     .padding(horizontal = 14.dp, vertical = 6.dp),
             ) {
                 Text(
@@ -75,7 +66,7 @@ fun TrendingCard(
                     fontFamily = InterFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 12.sp,
-                    color = OnSurface,
+                    color = colors.onSurface,
                 )
             }
         }

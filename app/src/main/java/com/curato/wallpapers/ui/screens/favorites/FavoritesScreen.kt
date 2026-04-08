@@ -30,9 +30,7 @@ import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.ui.components.CuratoTopBar
 import com.curato.wallpapers.ui.components.WallpaperCard
 import com.curato.wallpapers.ui.theme.ManropeFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.Primary
+import com.curato.wallpapers.ui.theme.curatoColors
 
 @Composable
 fun FavoritesScreen(
@@ -42,6 +40,7 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val uiData by viewModel.uiState.collectAsStateWithLifecycle()
+    val colors = curatoColors
 
     Column(modifier = modifier.fillMaxSize()) {
         CuratoTopBar(title = "Favorites", showSearch = false)
@@ -68,7 +67,7 @@ fun FavoritesScreen(
                         Icon(
                             imageVector = Icons.Rounded.FavoriteBorder,
                             contentDescription = null,
-                            tint = OnSurfaceVariant.copy(alpha = 0.3f),
+                            tint = colors.onSurfaceVariant.copy(alpha = 0.3f),
                             modifier = Modifier.size(80.dp),
                         )
                     }
@@ -78,7 +77,7 @@ fun FavoritesScreen(
                         fontFamily = ManropeFontFamily,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
-                        color = OnSurface,
+                        color = colors.onSurface,
                         textAlign = TextAlign.Center,
                     )
 
@@ -87,7 +86,7 @@ fun FavoritesScreen(
                         fontFamily = com.curato.wallpapers.ui.theme.InterFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
-                        color = OnSurfaceVariant,
+                        color = colors.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                         lineHeight = 22.sp,
                     )
@@ -100,7 +99,7 @@ fun FavoritesScreen(
                             fontFamily = com.curato.wallpapers.ui.theme.InterFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp,
-                            color = Primary,
+                            color = colors.primary,
                         )
                     }
                 }

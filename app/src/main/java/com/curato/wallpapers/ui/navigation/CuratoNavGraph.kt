@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.curato.wallpapers.ui.components.GlassmorphicBottomBar
 import com.curato.wallpapers.ui.screens.detail.WallpaperDetailScreen
+import com.curato.wallpapers.ui.screens.trending.TrendingScreen
 
 /**
  * Root nav graph — driven entirely by [AppDestinations].
@@ -50,6 +51,13 @@ fun CuratoNavGraph(
             }
 
             // ── Non-tab screens ───────────────────────────────────────────────
+            composable(route = AppDestinations.TRENDING_ROUTE) {
+                TrendingScreen(
+                    onBack = { navController.popBackStack() },
+                    onWallpaperClick = { navController.navigate(AppDestinations.detailRoute(it)) },
+                )
+            }
+
             composable(
                 route = AppDestinations.DETAIL_ROUTE,
                 arguments = listOf(navArgument("wallpaperId") { type = NavType.StringType }),
