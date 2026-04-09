@@ -92,6 +92,9 @@ dependencies {
     // Image Loading
     implementation(libs.coil.compose)
 
+    // Shape morphing — same engine Material3 Expressive uses internally
+    implementation(libs.androidx.graphics.shapes)
+
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)

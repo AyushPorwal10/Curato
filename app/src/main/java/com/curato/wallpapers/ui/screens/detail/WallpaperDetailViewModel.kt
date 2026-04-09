@@ -11,6 +11,8 @@ import com.curato.wallpapers.domain.common.onError
 import com.curato.wallpapers.domain.common.onSuccess
 import com.curato.wallpapers.domain.common.toUiState
 import com.curato.wallpapers.domain.model.Wallpaper
+import com.curato.wallpapers.domain.model.WallpaperTarget
+import com.curato.wallpapers.domain.wallpaper.WallpaperApplier
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +27,8 @@ data class DetailUiData(
     val isFavorite: Boolean = false,
     val isApplying: Boolean = false,
     val isDownloading: Boolean = false,
+    val showApplySheet: Boolean = false,
+    val applyMessage: String? = null,
 )
 
 @HiltViewModel
@@ -32,6 +36,7 @@ class WallpaperDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val wallpaperRepository: WallpaperRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val wallpaperApplier: WallpaperApplier,
 ) : ViewModel() {
 
     private val wallpaperId: String = checkNotNull(savedStateHandle["wallpaperId"])
@@ -47,6 +52,10 @@ class WallpaperDetailViewModel @Inject constructor(
     fun dispatch(action: WallpaperAction) {
         when (action) {
             is WallpaperAction.ToggleFavorite -> toggleFavorite(action.wallpaper)
+            is WallpaperAction.ApplyWallpaper -> applyWallpaper(action.wallpaper, action.target)
+            is WallpaperAction.ShowApplySheet -> updateSuccess { it.copy(showApplySheet = true) }
+            is WallpaperAction.DismissApplySheet -> updateSuccess { it.copy(showApplySheet = false) }
+            is WallpaperAction.DismissApplyMessage -> updateSuccess { it.copy(applyMessage = null) }
             is WallpaperAction.Retry -> loadDetail()
             else -> Unit
         }
@@ -77,5 +86,25 @@ class WallpaperDetailViewModel @Inject constructor(
 
     private fun toggleFavorite(wallpaper: Wallpaper) {
         viewModelScope.launch { favoriteRepository.toggleFavorite(wallpaper) }
+    }
+
+    private fun applyWallpaper(wallpaper: Wallpaper, target: WallpaperTarget) {
+        viewModelScope.launch {
+            updateSuccess { it.copy(isApplying = true, showApplySheet = false) }
+            wallpaperApplier.apply(wallpaper, target)
+                .onSuccess {
+                    updateSuccess { it.copy(isApplying = false, applyMessage = "Wallpaper applied!") }
+                }
+                .onError { _, message ->
+                    updateSuccess { it.copy(isApplying = false, applyMessage = "Failed: $message") }
+                }
+        }
+    }
+
+    private inline fun updateSuccess(transform: (DetailUiData) -> DetailUiData) {
+        _uiState.update { state ->
+            val data = (state as? UiState.Success)?.data ?: return@update state
+            UiState.Success(transform(data))
+        }
     }
 }

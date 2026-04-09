@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +25,7 @@ import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.domain.model.WallpaperCategory
 import com.curato.wallpapers.ui.components.CategoryChip
+import com.curato.wallpapers.ui.components.CuratoLoadingIndicator
 import com.curato.wallpapers.ui.components.CuratoTopBar
 import com.curato.wallpapers.ui.components.SectionHeader
 import com.curato.wallpapers.ui.components.TrendingCard
@@ -44,8 +44,7 @@ fun HomeScreen(
     val colors = curatoColors
     Box(modifier = modifier.fillMaxSize()) {
         when (val state = uiState) {
-            is UiState.Loading -> CircularProgressIndicator(
-                color = colors.primary,
+            is UiState.Loading -> CuratoLoadingIndicator(
                 modifier = Modifier.align(Alignment.Center),
             )
 
@@ -153,7 +152,7 @@ fun HomeScreen(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier.padding(16.dp),
                             ) {
-                                CircularProgressIndicator(color = colors.primary)
+                                CuratoLoadingIndicator()
                             }
                         }
                     }

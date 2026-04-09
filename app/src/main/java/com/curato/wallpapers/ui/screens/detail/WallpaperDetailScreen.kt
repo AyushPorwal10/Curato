@@ -23,12 +23,17 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Wallpaper
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,11 +48,13 @@ import coil.compose.AsyncImage
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.ui.components.CuratoGradientButton
+import com.curato.wallpapers.ui.components.CuratoLoadingIndicator
 import com.curato.wallpapers.ui.components.GlassmorphicIconButton
 import com.curato.wallpapers.ui.theme.InterFontFamily
 import com.curato.wallpapers.ui.theme.ManropeFontFamily
 import com.curato.wallpapers.ui.theme.curatoColors
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WallpaperDetailScreen(
     onBack: () -> Unit,
@@ -55,12 +62,13 @@ fun WallpaperDetailScreen(
     viewModel: WallpaperDetailViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val applySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val colors = curatoColors
     Box(modifier = modifier.fillMaxSize()) {
         when (val state = uiState) {
-            is UiState.Loading -> CircularProgressIndicator(
-                color = colors.primary,
+            is UiState.Loading -> CuratoLoadingIndicator(
                 modifier = Modifier.align(Alignment.Center),
             )
 
@@ -73,6 +81,25 @@ fun WallpaperDetailScreen(
             is UiState.Success -> {
                 val data = state.data
                 val wallpaper = data.wallpaper
+
+                // Show snackbar when apply completes (success or error)
+                LaunchedEffect(data.applyMessage) {
+                    data.applyMessage?.let {
+                        snackbarHostState.showSnackbar(it)
+                        viewModel.dispatch(WallpaperAction.DismissApplyMessage)
+                    }
+                }
+
+                // Target picker sheet
+                if (data.showApplySheet) {
+                    ApplyTargetSheet(
+                        sheetState = applySheetState,
+                        onTargetSelected = { target ->
+                            viewModel.dispatch(WallpaperAction.ApplyWallpaper(wallpaper, target))
+                        },
+                        onDismiss = { viewModel.dispatch(WallpaperAction.DismissApplySheet) },
+                    )
+                }
 
                 // Full-screen wallpaper background
                 AsyncImage(
@@ -198,9 +225,13 @@ fun WallpaperDetailScreen(
 
                         // Apply gradient button — fills remaining space
                         CuratoGradientButton(
-                            text = "Apply",
+                            text = if (data.isApplying) "Applying…" else "Apply",
                             icon = Icons.Rounded.Wallpaper,
-                            onClick = { /* TODO: WallpaperManager */ },
+                            onClick = {
+                                if (!data.isApplying) {
+                                    viewModel.dispatch(WallpaperAction.ShowApplySheet)
+                                }
+                            },
                             modifier = Modifier.weight(1f),
                         )
                     }
@@ -221,6 +252,14 @@ fun WallpaperDetailScreen(
 
             else -> Unit
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 16.dp),
+        )
     }
 }
 
