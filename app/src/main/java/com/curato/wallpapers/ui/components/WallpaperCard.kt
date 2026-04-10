@@ -26,7 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import coil.compose.SubcomposeAsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.curato.wallpapers.domain.model.Wallpaper
@@ -58,13 +60,20 @@ fun WallpaperCard(
                 .build()
         }
 
-        AsyncImage(
+        SubcomposeAsyncImage(
             model = request,
             contentDescription = wallpaper.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(3f / 4f),
+            loading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(rememberShimmerBrush()),
+                )
+            },
         )
 
         Row(

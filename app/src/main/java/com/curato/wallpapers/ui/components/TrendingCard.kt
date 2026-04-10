@@ -17,7 +17,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.compose.foundation.layout.fillMaxSize
+import coil.compose.SubcomposeAsyncImage
 import com.curato.wallpapers.domain.model.Wallpaper
 import com.curato.wallpapers.ui.theme.InterFontFamily
 import com.curato.wallpapers.ui.theme.WallpaperCardShape
@@ -38,11 +39,18 @@ fun TrendingCard(
             .clip(WallpaperCardShape)
             .clickable(onClick = onClick),
     ) {
-        AsyncImage(
+        SubcomposeAsyncImage(
             model = wallpaper.previewUrl,
             contentDescription = wallpaper.title,
             contentScale = ContentScale.Crop,
             modifier = Modifier.matchParentSize(),
+            loading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(rememberShimmerBrush()),
+                )
+            },
         )
 
         Box(

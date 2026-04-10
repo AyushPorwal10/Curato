@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 val localProperties = Properties().apply {
@@ -80,6 +81,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.firebase.firestore)
     ksp(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
 

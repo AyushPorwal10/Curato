@@ -22,12 +22,12 @@ class CuratedWallpaperHandler @Inject constructor(
     override suspend fun handle(
         request: WallpaperRequest.GetCurated,
     ): Result<PaginatedResult<Wallpaper>> = safeCall {
-        val response = sourceFactory.getDefault().getCurated(request.page, request.perPage)
+        val page = sourceFactory.getDefault().getCurated(request.page, request.perPage)
         PaginatedResult(
-            items = response.photos.map { mapper.toDomain(it) },
-            currentPage = response.page,
-            hasNextPage = response.nextPage != null,
-            totalResults = response.totalResults,
+            items = page.wallpapers.map { mapper.toDomain(it) },
+            currentPage = page.page,
+            hasNextPage = page.hasNextPage,
+            totalResults = page.totalResults,
         )
     }
 }
