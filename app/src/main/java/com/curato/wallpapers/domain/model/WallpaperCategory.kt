@@ -11,4 +11,5 @@ enum class WallpaperCategory(val displayName: String, val queryTerm: String) {
     SPACE("Space", "space galaxy"),
     ARCHITECTURE("Architecture", "architecture city"),
     ANIME("Anime", "anime aesthetic"),
+    SUPERHEROES("Superheroes","super heroes")
 }

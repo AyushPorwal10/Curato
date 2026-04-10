@@ -22,12 +22,12 @@ class SearchWallpaperHandler @Inject constructor(
     override suspend fun handle(
         request: WallpaperRequest.Search,
     ): Result<PaginatedResult<Wallpaper>> = safeCall {
-        val response = sourceFactory.getDefault().search(request.query, request.page, request.perPage)
+        val page = sourceFactory.getDefault().search(request.query, request.page, request.perPage)
         PaginatedResult(
-            items = response.photos.map { mapper.toDomain(it) },
-            currentPage = response.page,
-            hasNextPage = response.nextPage != null,
-            totalResults = response.totalResults,
+            items = page.wallpapers.map { mapper.toDomain(it) },
+            currentPage = page.page,
+            hasNextPage = page.hasNextPage,
+            totalResults = page.totalResults,
         )
     }
 }

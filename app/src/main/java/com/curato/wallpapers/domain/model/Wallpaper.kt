@@ -22,6 +22,6 @@ data class Wallpaper(
     val source: WallpaperSourceType = WallpaperSourceType.PEXELS,
 )
 
-enum class WallpaperSourceType { PEXELS, UNSPLASH, AI_GENERATED }
+enum class WallpaperSourceType { PEXELS, FIREBASE, UNSPLASH, AI_GENERATED }
 
 enum class WallpaperTarget { HOME_SCREEN, LOCK_SCREEN, BOTH }

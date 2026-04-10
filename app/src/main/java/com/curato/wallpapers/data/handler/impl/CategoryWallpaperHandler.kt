@@ -22,16 +22,16 @@ class CategoryWallpaperHandler @Inject constructor(
     override suspend fun handle(
         request: WallpaperRequest.GetByCategory,
     ): Result<PaginatedResult<Wallpaper>> = safeCall {
-        val response = sourceFactory.getDefault().search(
-            query = request.category.queryTerm,
+        val page = sourceFactory.getDefault().getByCategory(
+            category = request.category,
             page = request.page,
             perPage = request.perPage,
         )
         PaginatedResult(
-            items = response.photos.map { mapper.toDomain(it, request.category) },
-            currentPage = response.page,
-            hasNextPage = response.nextPage != null,
-            totalResults = response.totalResults,
+            items = page.wallpapers.map { mapper.toDomain(it, categoryOverride = request.category) },
+            currentPage = page.page,
+            hasNextPage = page.hasNextPage,
+            totalResults = page.totalResults,
         )
     }
 }

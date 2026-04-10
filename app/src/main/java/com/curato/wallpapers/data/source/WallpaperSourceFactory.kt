@@ -15,5 +15,5 @@ class WallpaperSourceFactory @Inject constructor(
         sources[type] ?: error("No WallpaperSource registered for $type")
 
     /** Returns the default active source (configurable via RemoteConfig in future) */
-    fun getDefault(): WallpaperSource = get(SourceType.PEXELS)
+    fun getDefault(): WallpaperSource = get(SourceType.FIREBASE)
 }

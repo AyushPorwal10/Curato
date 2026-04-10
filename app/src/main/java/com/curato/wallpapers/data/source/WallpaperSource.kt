@@ -1,23 +1,29 @@
 package com.curato.wallpapers.data.source
 
-import com.curato.wallpapers.data.remote.dto.PhotoDto
-import com.curato.wallpapers.data.remote.dto.PexelsPhotosResponse
+import com.curato.wallpapers.domain.model.WallpaperCategory
 
 /**
- * Strategy interface — every wallpaper backend (Pexels, Unsplash, AI) implements this.
- * The rest of the data layer talks only to this interface, never to concrete classes.
+ * Strategy interface — every wallpaper backend (Pexels, Firebase, …) implements this.
+ * No Pexels or Firebase types leak past this boundary.
  */
 interface WallpaperSource {
 
     val sourceType: SourceType
 
-    suspend fun getCurated(page: Int, perPage: Int): PexelsPhotosResponse
+    suspend fun getCurated(page: Int, perPage: Int): SourceWallpapersPage
 
-    suspend fun search(
-        query: String,
+    suspend fun search(query: String, page: Int, perPage: Int): SourceWallpapersPage
+
+    /**
+     * Fetch wallpapers for a specific category.
+     * Separated from [search] so each backend can use its most efficient query
+     * (Pexels: keyword search; Firebase: equality filter on the category field).
+     */
+    suspend fun getByCategory(
+        category: WallpaperCategory,
         page: Int,
         perPage: Int,
-    ): PexelsPhotosResponse
+    ): SourceWallpapersPage
 
-    suspend fun getById(id: String): PhotoDto
+    suspend fun getById(id: String): SourceWallpaperDto
 }

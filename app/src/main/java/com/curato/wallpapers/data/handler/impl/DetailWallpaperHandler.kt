@@ -18,10 +18,7 @@ class DetailWallpaperHandler @Inject constructor(
 
     override val handlerType = WallpaperRequest.Type.DETAIL
 
-    override suspend fun handle(
-        request: WallpaperRequest.GetDetail,
-    ): Result<Wallpaper> = safeCall {
-        val photo = sourceFactory.getDefault().getById(request.id)
-        mapper.toDomain(photo)
+    override suspend fun handle(request: WallpaperRequest.GetDetail): Result<Wallpaper> = safeCall {
+        mapper.toDomain(sourceFactory.getDefault().getById(request.id))
     }
 }
