@@ -36,9 +36,30 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UiState<HomeUiData>>(UiState.Loading)
     val uiState: StateFlow<UiState<HomeUiData>> = _uiState.asStateFlow()
 
+    private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
+
     init {
+        viewModelScope.launch {
+            favoriteRepository.observeFavorites().collect { favorites ->
+                _favoriteIds.value = favorites.map { it.id }.toSet()
+                _uiState.update { state ->
+                    if (state is UiState.Success) {
+                        val ids = _favoriteIds.value
+                        UiState.Success(
+                            state.data.copy(
+                                trendingWallpapers = state.data.trendingWallpapers.map { it.copy(isFavorite = it.id in ids) },
+                                forYouWallpapers = state.data.forYouWallpapers.map { it.copy(isFavorite = it.id in ids) },
+                            )
+                        )
+                    } else state
+                }
+            }
+        }
         dispatch(WallpaperAction.LoadCurated)
     }
+
+    private fun applyFavorites(wallpapers: List<Wallpaper>) =
+        wallpapers.map { it.copy(isFavorite = it.id in _favoriteIds.value) }
 
     fun dispatch(action: WallpaperAction) {
         when (action) {
@@ -55,8 +76,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             wallpaperRepository.getCurated(page = 1).onSuccess { result ->
-                val trending = result.items.take(6)
-                val forYou = result.items.drop(6)
+                val trending = applyFavorites(result.items.take(6))
+                val forYou = applyFavorites(result.items.drop(6))
                 _uiState.value = UiState.Success(
                     HomeUiData(
                         trendingWallpapers = trending,
@@ -80,7 +101,7 @@ class HomeViewModel @Inject constructor(
                     val data = (state as? UiState.Success)?.data ?: HomeUiData()
                     UiState.Success(
                         data.copy(
-                            forYouWallpapers = result.items,
+                            forYouWallpapers = applyFavorites(result.items),
                             isLoadingMore = false,
                             hasNextPage = result.hasNextPage,
                             currentPage = 1,
@@ -105,7 +126,7 @@ class HomeViewModel @Inject constructor(
                         val data = (state as? UiState.Success)?.data ?: HomeUiData()
                         UiState.Success(
                             data.copy(
-                                forYouWallpapers = data.forYouWallpapers + result.items,
+                                forYouWallpapers = data.forYouWallpapers + applyFavorites(result.items),
                                 isLoadingMore = false,
                                 hasNextPage = result.hasNextPage,
                                 currentPage = nextPage,

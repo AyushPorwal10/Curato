@@ -17,9 +17,8 @@ object HomeDestination : TabDestination {
     @Composable
     override fun Screen(navController: NavController) {
         HomeScreen(
-            onWallpaperClick = { id ->
-                navController.navigate(AppDestinations.detailRoute(id))
-            },
+            onWallpaperClick = { id -> navController.navigate(AppDestinations.detailRoute(id)) },
+            onSeeAllTrending = { navController.navigate(AppDestinations.TRENDING_ROUTE) },
         )
     }
 }

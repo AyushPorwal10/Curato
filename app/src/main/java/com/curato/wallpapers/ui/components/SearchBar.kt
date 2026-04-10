@@ -1,6 +1,7 @@
 package com.curato.wallpapers.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,14 +28,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curato.wallpapers.ui.theme.InterFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.SurfaceContainerLow
+import com.curato.wallpapers.ui.theme.curatoColors
 
-/**
- * Custom search bar — matches Figma Explore screen.
- * bg: SurfaceContainerLow, rounded 16dp, search icon + hint text.
- */
 @Composable
 fun CuratoSearchBar(
     query: String,
@@ -43,19 +38,21 @@ fun CuratoSearchBar(
     hint: String = "Search wallpapers...",
     onSearch: (String) -> Unit = {},
 ) {
+    val colors = curatoColors
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxWidth()
             .height(52.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(SurfaceContainerLow)
+            .background(colors.surfaceContainerLow)
             .padding(horizontal = 16.dp),
     ) {
         Icon(
             imageVector = Icons.Rounded.Search,
             contentDescription = null,
-            tint = OnSurfaceVariant,
+            tint = colors.onSurfaceVariant,
             modifier = Modifier.size(20.dp),
         )
         Spacer(Modifier.width(12.dp))
@@ -67,9 +64,9 @@ fun CuratoSearchBar(
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.Normal,
                 fontSize = 15.sp,
-                color = OnSurface,
+                color = colors.onSurface,
             ),
-            cursorBrush = SolidColor(OnSurface),
+            cursorBrush = SolidColor(colors.onSurface),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { onSearch(query) }),
             decorationBox = { innerTextField ->
@@ -79,7 +76,7 @@ fun CuratoSearchBar(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 15.sp,
-                        color = OnSurfaceVariant,
+                        color = colors.onSurfaceVariant,
                     )
                 }
                 innerTextField()

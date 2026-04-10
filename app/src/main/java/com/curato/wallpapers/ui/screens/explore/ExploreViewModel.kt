@@ -39,11 +39,31 @@ class ExploreViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UiState<ExploreUiData>>(UiState.Loading)
     val uiState: StateFlow<UiState<ExploreUiData>> = _uiState.asStateFlow()
 
+    private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
     private var searchJob: Job? = null
+    private var loadCuratedJob: Job? = null
 
     init {
+        viewModelScope.launch {
+            favoriteRepository.observeFavorites().collect { favorites ->
+                _favoriteIds.value = favorites.map { it.id }.toSet()
+                _uiState.update { state ->
+                    if (state is UiState.Success) {
+                        val ids = _favoriteIds.value
+                        UiState.Success(
+                            state.data.copy(
+                                wallpapers = state.data.wallpapers.map { it.copy(isFavorite = it.id in ids) }
+                            )
+                        )
+                    } else state
+                }
+            }
+        }
         dispatch(WallpaperAction.LoadCurated)
     }
+
+    private fun applyFavorites(wallpapers: List<Wallpaper>) =
+        wallpapers.map { it.copy(isFavorite = it.id in _favoriteIds.value) }
 
     fun dispatch(action: WallpaperAction) {
         when (action) {
@@ -60,14 +80,24 @@ class ExploreViewModel @Inject constructor(
     }
 
     private fun loadCurated(page: Int = 1, append: Boolean = false) {
-        viewModelScope.launch {
-            if (!append) _uiState.value = UiState.Loading
+        loadCuratedJob?.cancel()
+        loadCuratedJob = viewModelScope.launch {
+            if (append) {
+                _uiState.update { state ->
+                    val data = (state as? UiState.Success)?.data ?: return@update state
+                    UiState.Success(data.copy(isLoadingMore = true))
+                }
+            } else {
+                // Only show full loading spinner if there's nothing to show yet
+                val hasContent = (_uiState.value as? UiState.Success)?.data?.wallpapers?.isNotEmpty() == true
+                if (!hasContent) _uiState.value = UiState.Loading
+            }
             wallpaperRepository.getCurated(page).onSuccess { result ->
                 _uiState.update { state ->
                     val current = (state as? UiState.Success)?.data ?: ExploreUiData()
                     UiState.Success(
                         current.copy(
-                            wallpapers = if (append) current.wallpapers + result.items else result.items,
+                            wallpapers = if (append) current.wallpapers + applyFavorites(result.items) else applyFavorites(result.items),
                             isLoadingMore = false,
                             hasNextPage = result.hasNextPage,
                             currentPage = result.currentPage,
@@ -85,8 +115,13 @@ class ExploreViewModel @Inject constructor(
             val data = (state as? UiState.Success)?.data ?: ExploreUiData()
             UiState.Success(data.copy(searchQuery = query, isSearchActive = query.isNotBlank()))
         }
-        if (query.isBlank()) { loadCurated(); return }
+        if (query.isBlank()) {
+            searchJob?.cancel()
+            loadCurated()
+            return
+        }
         searchJob?.cancel()
+        loadCuratedJob?.cancel()
         searchJob = viewModelScope.launch {
             delay(400) // debounce
             wallpaperRepository.search(query).onSuccess { result ->
@@ -94,7 +129,7 @@ class ExploreViewModel @Inject constructor(
                     val data = (state as? UiState.Success)?.data ?: ExploreUiData()
                     UiState.Success(
                         data.copy(
-                            wallpapers = result.items,
+                            wallpapers = applyFavorites(result.items),
                             isLoadingMore = false,
                             hasNextPage = result.hasNextPage,
                             currentPage = 1,
@@ -126,7 +161,7 @@ class ExploreViewModel @Inject constructor(
                     val data = (state as? UiState.Success)?.data ?: ExploreUiData()
                     UiState.Success(
                         data.copy(
-                            wallpapers = result.items,
+                            wallpapers = applyFavorites(result.items),
                             isLoadingMore = false,
                             hasNextPage = result.hasNextPage,
                             currentPage = 1,
@@ -166,7 +201,7 @@ class ExploreViewModel @Inject constructor(
                     val data = (state as? UiState.Success)?.data ?: ExploreUiData()
                     UiState.Success(
                         data.copy(
-                            wallpapers = data.wallpapers + paginated.items,
+                            wallpapers = data.wallpapers + applyFavorites(paginated.items),
                             isLoadingMore = false,
                             hasNextPage = paginated.hasNextPage,
                             currentPage = nextPage,

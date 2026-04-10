@@ -44,13 +44,9 @@ import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.ui.components.CuratoGradientButton
 import com.curato.wallpapers.ui.components.GlassmorphicIconButton
-import com.curato.wallpapers.ui.theme.GlassBorder
-import com.curato.wallpapers.ui.theme.GlassSurface
 import com.curato.wallpapers.ui.theme.InterFontFamily
 import com.curato.wallpapers.ui.theme.ManropeFontFamily
-import com.curato.wallpapers.ui.theme.OnSurface
-import com.curato.wallpapers.ui.theme.OnSurfaceVariant
-import com.curato.wallpapers.ui.theme.Primary
+import com.curato.wallpapers.ui.theme.curatoColors
 
 @Composable
 fun WallpaperDetailScreen(
@@ -60,16 +56,17 @@ fun WallpaperDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val colors = curatoColors
     Box(modifier = modifier.fillMaxSize()) {
         when (val state = uiState) {
             is UiState.Loading -> CircularProgressIndicator(
-                color = Primary,
+                color = colors.primary,
                 modifier = Modifier.align(Alignment.Center),
             )
 
             is UiState.Error -> Text(
                 text = state.message,
-                color = OnSurface,
+                color = colors.onSurface,
                 modifier = Modifier.align(Alignment.Center),
             )
 
@@ -114,10 +111,10 @@ fun WallpaperDetailScreen(
                         .fillMaxWidth()
                         .align(Alignment.BottomCenter)
                         .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                        .background(GlassSurface)
+                        .background(colors.glassSurface)
                         .border(
                             0.5.dp,
-                            GlassBorder,
+                            colors.glassBorder,
                             RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                         )
                         .navigationBarsPadding()
@@ -137,7 +134,7 @@ fun WallpaperDetailScreen(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 11.sp,
                                 letterSpacing = 1.sp,
-                                color = Primary,
+                                color = colors.primary,
                             )
                         }
                         Spacer(Modifier.height(10.dp))
@@ -150,7 +147,7 @@ fun WallpaperDetailScreen(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 32.sp,
                         letterSpacing = (-0.8).sp,
-                        color = OnSurface,
+                        color = colors.onSurface,
                         lineHeight = 38.sp,
                     )
 
@@ -162,7 +159,7 @@ fun WallpaperDetailScreen(
                         fontFamily = InterFontFamily,
                         fontWeight = FontWeight.Normal,
                         fontSize = 14.sp,
-                        color = OnSurfaceVariant,
+                        color = colors.onSurfaceVariant,
                         lineHeight = 22.sp,
                     )
 
@@ -180,7 +177,7 @@ fun WallpaperDetailScreen(
                             Icon(
                                 imageVector = if (data.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                                 contentDescription = "Favorite",
-                                tint = if (data.isFavorite) Primary else OnSurface,
+                                tint = if (data.isFavorite) colors.primary else colors.onSurface,
                                 modifier = Modifier.size(24.dp),
                             )
                         }
@@ -192,7 +189,7 @@ fun WallpaperDetailScreen(
                             Icon(
                                 imageVector = Icons.Rounded.Download,
                                 contentDescription = "Download",
-                                tint = OnSurface,
+                                tint = colors.onSurface,
                                 modifier = Modifier.size(24.dp),
                             )
                         }
@@ -229,6 +226,7 @@ fun WallpaperDetailScreen(
 
 @Composable
 private fun MetadataItem(label: String, value: String) {
+    val colors = curatoColors
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(
             text = label,
@@ -236,14 +234,14 @@ private fun MetadataItem(label: String, value: String) {
             fontWeight = FontWeight.Medium,
             fontSize = 10.sp,
             letterSpacing = 0.8.sp,
-            color = OnSurfaceVariant.copy(alpha = 0.6f),
+            color = colors.onSurfaceVariant.copy(alpha = 0.6f),
         )
         Text(
             text = value,
             fontFamily = InterFontFamily,
             fontWeight = FontWeight.SemiBold,
             fontSize = 12.sp,
-            color = OnSurface,
+            color = colors.onSurface,
         )
     }
 }

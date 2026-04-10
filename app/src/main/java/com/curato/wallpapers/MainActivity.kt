@@ -6,10 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.Modifier
 import com.curato.wallpapers.ui.navigation.CuratoNavGraph
 import com.curato.wallpapers.ui.theme.CuratoTheme
-import com.curato.wallpapers.ui.theme.SurfaceBase
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
                 CuratoNavGraph(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(SurfaceBase),
+                        .background(MaterialTheme.colorScheme.background),
                 )
             }
         }
