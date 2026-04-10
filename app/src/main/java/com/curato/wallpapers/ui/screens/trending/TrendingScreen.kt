@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
+import com.curato.wallpapers.ui.components.CuratoLoadingIndicator
 import com.curato.wallpapers.ui.components.CuratoTopBar
 import com.curato.wallpapers.ui.components.WallpaperCard
 import com.curato.wallpapers.ui.theme.curatoColors
@@ -52,8 +52,7 @@ fun TrendingScreen(
     val colors = curatoColors
     Box(modifier = modifier.fillMaxSize()) {
         when (val state = uiState) {
-            is UiState.Loading -> CircularProgressIndicator(
-                color = colors.primary,
+            is UiState.Loading -> CuratoLoadingIndicator(
                 modifier = Modifier.align(Alignment.Center),
             )
 
@@ -107,7 +106,7 @@ fun TrendingScreen(
                                 contentAlignment = Alignment.Center,
                                 modifier = Modifier.padding(16.dp),
                             ) {
-                                CircularProgressIndicator(color = colors.primary)
+                                CuratoLoadingIndicator()
                             }
                         }
                     }

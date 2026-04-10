@@ -29,6 +29,10 @@ sealed class WallpaperAction {
         val wallpaper: Wallpaper,
         val target: WallpaperTarget,
     ) : WallpaperAction()
+    object ShowApplySheet : WallpaperAction()
+    object DismissApplySheet : WallpaperAction()
+    object DismissApplyMessage : WallpaperAction()
+
     data class DownloadWallpaper(val wallpaper: Wallpaper) : WallpaperAction()
 
     data class Retry(val previousAction: WallpaperAction) : WallpaperAction()
