@@ -10,9 +10,10 @@ import com.curato.wallpapers.domain.common.onError
 import com.curato.wallpapers.domain.common.onSuccess
 import com.curato.wallpapers.domain.model.Wallpaper
 import com.curato.wallpapers.domain.model.WallpaperCategory
+import com.curato.wallpapers.domain.wallpaper.SearchWallpapersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,16 +35,47 @@ data class ExploreUiData(
 class ExploreViewModel @Inject constructor(
     private val wallpaperRepository: WallpaperRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val searchWallpapersUseCase: SearchWallpapersUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<ExploreUiData>>(UiState.Loading)
     val uiState: StateFlow<UiState<ExploreUiData>> = _uiState.asStateFlow()
 
     private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
-    private var searchJob: Job? = null
+    private val searchQueryFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
     private var loadCuratedJob: Job? = null
 
     init {
+        // This is not a correct place for execution below stuff TODO: Temporary Change
+        handleFavourites()
+        setUpSearch()
+        dispatch(WallpaperAction.LoadCurated)
+    }
+
+    private fun setUpSearch() {
+        viewModelScope.launch {
+            searchWallpapersUseCase(searchQueryFlow).collect { result ->
+                result.onSuccess { paginated ->
+                    _uiState.update { state ->
+                        val data = (state as? UiState.Success)?.data ?: ExploreUiData()
+                        UiState.Success(
+                            data.copy(
+                                wallpapers = applyFavorites(paginated.items),
+                                isLoadingMore = false,
+                                hasNextPage = paginated.hasNextPage,
+                                currentPage = 1,
+                            )
+                        )
+                    }
+                }.onError { _, message ->
+                    _uiState.value = UiState.Error(message)
+                }
+            }
+        }
+    }
+
+
+    private fun handleFavourites() {
         viewModelScope.launch {
             favoriteRepository.observeFavorites().collect { favorites ->
                 _favoriteIds.value = favorites.map { it.id }.toSet()
@@ -59,8 +91,9 @@ class ExploreViewModel @Inject constructor(
                 }
             }
         }
-        dispatch(WallpaperAction.LoadCurated)
     }
+
+    
 
     private fun applyFavorites(wallpapers: List<Wallpaper>) =
         wallpapers.map { it.copy(isFavorite = it.id in _favoriteIds.value) }
@@ -116,30 +149,11 @@ class ExploreViewModel @Inject constructor(
             UiState.Success(data.copy(searchQuery = query, isSearchActive = query.isNotBlank()))
         }
         if (query.isBlank()) {
-            searchJob?.cancel()
             loadCurated()
             return
         }
-        searchJob?.cancel()
         loadCuratedJob?.cancel()
-        searchJob = viewModelScope.launch {
-            delay(400) // debounce
-            wallpaperRepository.search(query).onSuccess { result ->
-                _uiState.update { state ->
-                    val data = (state as? UiState.Success)?.data ?: ExploreUiData()
-                    UiState.Success(
-                        data.copy(
-                            wallpapers = applyFavorites(result.items),
-                            isLoadingMore = false,
-                            hasNextPage = result.hasNextPage,
-                            currentPage = 1,
-                        )
-                    )
-                }
-            }.onError { _, message ->
-                _uiState.value = UiState.Error(message)
-            }
-        }
+        searchQueryFlow.tryEmit(query)
     }
 
     private fun clearSearch() {
