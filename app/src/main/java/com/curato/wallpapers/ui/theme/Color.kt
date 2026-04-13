@@ -20,9 +20,9 @@ private val Dark_Primary                 = Color(0xFFCDBDFF)
 private val Dark_OnPrimary               = Color(0xFF21005D)
 private val Dark_PrimaryContainer        = Color(0xFF7C4DFF)
 private val Dark_SecondaryContainer      = Color(0xFF009CCE)
-private val Dark_GlassSurface            = Color(0x99201F20)
-private val Dark_GlassBorder             = Color(0x1AE5E2E3)
-private val Dark_GlassBorderLight        = Color(0x33494455)
+private val Dark_GlassSurface            = Color(0x55201F20)
+private val Dark_GlassBorder             = Color(0x40E5E2E3)
+private val Dark_GlassBorderLight        = Color(0x55494455)
 
 // ── Light palette ─────────────────────────────────────────────────────────────
 private val Light_SurfaceBase             = Color(0xFFFEFBFF)
@@ -40,9 +40,9 @@ private val Light_Primary                 = Color(0xFF6750A4)
 private val Light_OnPrimary               = Color(0xFFFFFFFF)
 private val Light_PrimaryContainer        = Color(0xFF7C4DFF)
 private val Light_SecondaryContainer      = Color(0xFF009CCE)
-private val Light_GlassSurface            = Color(0xCCFFFFFF)
-private val Light_GlassBorder             = Color(0x1A1C1B1F)
-private val Light_GlassBorderLight        = Color(0x33CAC4D0)
+private val Light_GlassSurface            = Color(0x70FFFFFF)
+private val Light_GlassBorder             = Color(0x55FFFFFF)
+private val Light_GlassBorderLight        = Color(0x55CAC4D0)
 
 // ── Semantic color container ──────────────────────────────────────────────────
 data class CuratoColors(

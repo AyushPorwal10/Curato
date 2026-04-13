@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.curato.wallpapers.ui.components.GlassmorphicBottomBar
 import com.curato.wallpapers.ui.screens.detail.WallpaperDetailScreen
+import com.curato.wallpapers.ui.screens.splash.SplashScreen
 import com.curato.wallpapers.ui.screens.trending.TrendingScreen
 
 /**
@@ -35,7 +36,7 @@ fun CuratoNavGraph(
 
     // Determine which routes show the bottom bar
     val tabRoutes = AppDestinations.tabs.map { it.route }.toSet()
-    val showBottomBar = currentRoute in tabRoutes
+    val showBottomBar = currentRoute in tabRoutes && currentRoute != AppDestinations.SPLASH_ROUTE
 
     Box(modifier = modifier.fillMaxSize()) {
         NavHost(
@@ -43,6 +44,17 @@ fun CuratoNavGraph(
             startDestination = AppDestinations.startRoute,
             modifier = Modifier.fillMaxSize(),
         ) {
+            // ── Splash ────────────────────────────────────────────────────────
+            composable(route = AppDestinations.SPLASH_ROUTE) {
+                SplashScreen(
+                    onSplashComplete = {
+                        navController.navigate(AppDestinations.tabs.first().route) {
+                            popUpTo(AppDestinations.SPLASH_ROUTE) { inclusive = true }
+                        }
+                    },
+                )
+            }
+
             // ── Tab screens — auto-registered, zero changes needed for new tabs ──
             AppDestinations.tabs.forEach { destination ->
                 composable(route = destination.route) {
