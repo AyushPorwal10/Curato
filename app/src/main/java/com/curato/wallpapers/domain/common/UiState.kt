@@ -23,4 +23,6 @@ fun <T> UiState<T>.dataOrNull(): T? = if (this is UiState.Success) data else nul
 fun <T> Result<T>.toUiState(): UiState<T> = when (this) {
     is Result.Success -> UiState.Success(data)
     is Result.Error -> UiState.Error(message)
+    is Result.Loading -> UiState.Loading
+    is Result.Empty -> UiState.Idle
 }

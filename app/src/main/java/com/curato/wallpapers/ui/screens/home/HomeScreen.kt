@@ -1,18 +1,26 @@
 package com.curato.wallpapers.ui.screens.home
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,6 +38,7 @@ import com.curato.wallpapers.ui.components.CuratoTopBar
 import com.curato.wallpapers.ui.components.SectionHeader
 import com.curato.wallpapers.ui.components.TrendingCard
 import com.curato.wallpapers.ui.components.WallpaperCard
+import com.curato.wallpapers.ui.theme.LocalThemeViewModel
 import com.curato.wallpapers.ui.theme.curatoColors
 
 @Composable
@@ -56,13 +65,30 @@ fun HomeScreen(
 
             is UiState.Success -> {
                 val data = state.data
+                val themeViewModel = LocalThemeViewModel.current
+                val themePreference by themeViewModel.isDarkTheme.collectAsStateWithLifecycle()
+                val isDark = themePreference ?: isSystemInDarkTheme()
+
                 LazyColumn(
                     contentPadding = PaddingValues(bottom = 100.dp),
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     // Top bar
                     item {
-                        CuratoTopBar(title = "Curato")
+                        CuratoTopBar(
+                            title = "Curato",
+                            showSearch = false,
+                            actions = {
+                                IconButton(onClick = { themeViewModel.toggle(isDark) }) {
+                                    Icon(
+                                        imageVector = if (isDark) Icons.Rounded.LightMode else Icons.Rounded.DarkMode,
+                                        contentDescription = if (isDark) "Switch to light mode" else "Switch to dark mode",
+                                        tint = curatoColors.onSurfaceVariant,
+                                        modifier = Modifier.size(22.dp),
+                                    )
+                                }
+                            },
+                        )
                     }
 
                     // Trending section
@@ -125,9 +151,9 @@ fun HomeScreen(
 
                     // For You 2-column grid (non-lazy inside lazy — use chunked)
                     items(data.forYouWallpapers.chunked(2)) { row ->
-                        androidx.compose.foundation.layout.Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.padding(horizontal = 24.dp),
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.padding(horizontal = 16.dp),
                         ) {
                             row.forEach { wallpaper ->
                                 WallpaperCard(

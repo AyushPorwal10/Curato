@@ -2,6 +2,7 @@ package com.curato.wallpapers.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -70,16 +72,24 @@ fun CuratoSearchBar(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { onSearch(query) }),
             decorationBox = { innerTextField ->
-                if (query.isEmpty()) {
-                    Text(
-                        text = hint,
-                        fontFamily = InterFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 15.sp,
-                        color = colors.onSurfaceVariant,
-                    )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (query.isEmpty()) {
+                        Text(
+                            text = hint,
+                            fontFamily = InterFontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 15.sp,
+                            color = colors.onSurfaceVariant,
+                            style = TextStyle(
+                                platformStyle = PlatformTextStyle(includeFontPadding = false)
+                            )
+                        )
+                    }
+                    innerTextField()
                 }
-                innerTextField()
             },
             modifier = Modifier.weight(1f),
         )

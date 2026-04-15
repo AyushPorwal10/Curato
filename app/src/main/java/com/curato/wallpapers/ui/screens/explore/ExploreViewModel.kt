@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.curato.wallpapers.data.repository.FavoriteRepository
 import com.curato.wallpapers.data.repository.WallpaperRepository
+import com.curato.wallpapers.domain.common.Result
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.domain.common.onError
@@ -13,7 +14,6 @@ import com.curato.wallpapers.domain.model.WallpaperCategory
 import com.curato.wallpapers.domain.wallpaper.SearchWallpapersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +26,7 @@ data class ExploreUiData(
     val searchQuery: String = "",
     val selectedCategory: WallpaperCategory? = null,
     val isSearchActive: Boolean = false,
+    val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val hasNextPage: Boolean = false,
     val currentPage: Int = 1,
@@ -42,7 +43,7 @@ class ExploreViewModel @Inject constructor(
     val uiState: StateFlow<UiState<ExploreUiData>> = _uiState.asStateFlow()
 
     private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
-    private val searchQueryFlow = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    private val searchQueryFlow = MutableStateFlow<String>("")
     private var loadCuratedJob: Job? = null
 
     init {
@@ -55,20 +56,28 @@ class ExploreViewModel @Inject constructor(
     private fun setUpSearch() {
         viewModelScope.launch {
             searchWallpapersUseCase(searchQueryFlow).collect { result ->
-                result.onSuccess { paginated ->
-                    _uiState.update { state ->
-                        val data = (state as? UiState.Success)?.data ?: ExploreUiData()
-                        UiState.Success(
-                            data.copy(
-                                wallpapers = applyFavorites(paginated.items),
-                                isLoadingMore = false,
-                                hasNextPage = paginated.hasNextPage,
-                                currentPage = 1,
-                            )
-                        )
+                when (result) {
+                    is Result.Loading -> {
+                        _uiState.update { state ->
+                            val data = (state as? UiState.Success)?.data ?: ExploreUiData()
+                            UiState.Success(data.copy(isLoading = true))
+                        }
                     }
-                }.onError { _, message ->
-                    _uiState.value = UiState.Error(message)
+                    is Result.Success -> {
+                        _uiState.update { state ->
+                            val data = (state as? UiState.Success)?.data ?: ExploreUiData()
+                            UiState.Success(
+                                data.copy(
+                                    wallpapers = applyFavorites(result.data.items),
+                                    isLoading = false,
+                                    hasNextPage = result.data.hasNextPage,
+                                    currentPage = 1,
+                                )
+                            )
+                        }
+                    }
+                    is Result.Empty -> loadCurated()
+                    is Result.Error -> _uiState.value = UiState.Error(result.message)
                 }
             }
         }
@@ -148,20 +157,15 @@ class ExploreViewModel @Inject constructor(
             val data = (state as? UiState.Success)?.data ?: ExploreUiData()
             UiState.Success(data.copy(searchQuery = query, isSearchActive = query.isNotBlank()))
         }
-        if (query.isBlank()) {
-            loadCurated()
-            return
-        }
-        loadCuratedJob?.cancel()
-        searchQueryFlow.tryEmit(query)
+        searchQueryFlow.value = query
     }
 
     private fun clearSearch() {
+        searchQueryFlow.value = ""
         _uiState.update { state ->
             val data = (state as? UiState.Success)?.data ?: ExploreUiData()
             UiState.Success(data.copy(searchQuery = "", isSearchActive = false))
         }
-        loadCurated()
     }
 
     private fun filterByCategory(category: WallpaperCategory) {

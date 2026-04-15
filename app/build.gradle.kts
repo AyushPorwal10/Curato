@@ -96,6 +96,12 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
 
+    // Lottie
+    implementation(libs.lottie.compose)
+
+    // DataStore
+    implementation(libs.datastore.preferences)
+
     // Shape morphing — same engine Material3 Expressive uses internally
     implementation(libs.androidx.graphics.shapes)
 

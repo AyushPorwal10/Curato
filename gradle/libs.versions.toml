@@ -22,6 +22,8 @@ googleFonts = "1.7.6"
 googleGmsGoogleServices = "4.4.4"
 firebaseFirestore = "26.1.2"
 coreSplashScreen = "1.0.1"
+lottie = "6.4.0"
+datastore = "1.1.1"
 
 [libraries]
 # Core
@@ -73,6 +75,8 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashScreen" }
+lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottie" }
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

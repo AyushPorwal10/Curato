@@ -66,7 +66,7 @@ fun WallpaperCard(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(3f / 4f),
+                .aspectRatio(2.5f / 4f),
             loading = {
                 Box(
                     modifier = Modifier

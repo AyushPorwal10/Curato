@@ -5,8 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -20,8 +22,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DarkMode
+import androidx.compose.material.icons.rounded.LightMode
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
+import com.curato.wallpapers.R
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.domain.model.WallpaperCategory
@@ -31,6 +44,7 @@ import com.curato.wallpapers.ui.components.CuratoSearchBar
 import com.curato.wallpapers.ui.components.CuratoTopBar
 import com.curato.wallpapers.ui.components.SectionHeader
 import com.curato.wallpapers.ui.components.WallpaperCard
+import com.curato.wallpapers.ui.theme.LocalThemeViewModel
 import com.curato.wallpapers.ui.theme.curatoColors
 
 @Composable
@@ -121,11 +135,32 @@ fun ExploreScreen(
                         Spacer(Modifier.height(16.dp))
                     }
 
+                    // Empty search state
+                    if (data.isSearchActive && data.wallpapers.isEmpty() && !data.isLoading) {
+                        item {
+                            val composition by rememberLottieComposition(
+                                LottieCompositionSpec.RawRes(R.raw.no_data_found)
+                            )
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 48.dp),
+                            ) {
+                                LottieAnimation(
+                                    composition = composition,
+                                    iterations = LottieConstants.IterateForever,
+                                    modifier = Modifier.size(280.dp),
+                                )
+                            }
+                        }
+                    }
+
                     // Asymmetric 2-column grid (chunked rows)
                     items(data.wallpapers.chunked(2)) { row ->
                         androidx.compose.foundation.layout.Row(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.padding(horizontal = 24.dp),
+                            modifier = Modifier.padding(horizontal = 16.dp),
                         ) {
                             row.forEach { wallpaper ->
                                 WallpaperCard(

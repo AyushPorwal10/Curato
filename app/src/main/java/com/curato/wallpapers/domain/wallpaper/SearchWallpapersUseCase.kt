@@ -9,14 +9,27 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class SearchWallpapersUseCase @Inject constructor(
     private val repository: WallpaperRepository,
 ) {
-    operator fun invoke(queries: Flow<String>): Flow<Result<PaginatedResult<Wallpaper>>> =
+    operator fun invoke(
+        queries: Flow<String>
+    ): Flow<Result<PaginatedResult<Wallpaper>>> =
         queries
+            .map { it.trim() }
             .debounce(400)
             .distinctUntilChanged()
-            .flatMapLatest { query -> flow { emit(repository.search(query)) } }
+            .flatMapLatest { query ->
+                if (query.isBlank()) {
+                    flow { emit(Result.Empty) }
+                } else {
+                    flow {
+                        emit(Result.Loading)
+                        emit(repository.search(query))
+                    }
+                }
+            }
 }

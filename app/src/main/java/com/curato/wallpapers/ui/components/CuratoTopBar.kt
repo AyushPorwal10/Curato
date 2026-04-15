@@ -2,6 +2,7 @@ package com.curato.wallpapers.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ fun CuratoTopBar(
     onBack: (() -> Unit)? = null,
     showSearch: Boolean = true,
     onSearch: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     val colors = curatoColors
     Row(
@@ -61,15 +63,18 @@ fun CuratoTopBar(
                 color = colors.onSurface,
             )
         }
-        if (showSearch) {
-            IconButton(onClick = { onSearch?.invoke() }) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = "Search",
-                    tint = colors.onSurfaceVariant,
-                    modifier = Modifier.size(22.dp),
-                )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (showSearch) {
+                IconButton(onClick = { onSearch?.invoke() }) {
+                    Icon(
+                        imageVector = Icons.Rounded.Search,
+                        contentDescription = "Search",
+                        tint = colors.onSurfaceVariant,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
             }
+            actions()
         }
     }
 }
