@@ -83,7 +83,7 @@ fun WallpaperCard(
                 .padding(start = 12.dp, top = 8.dp, bottom = 8.dp, end = 4.dp),
         ) {
             Text(
-                text = wallpaper.title.uppercase(),
+                text = wallpaper.title,
                 fontFamily = InterFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 10.sp,

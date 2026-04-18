@@ -21,7 +21,7 @@ import javax.inject.Inject
 data class HomeUiData(
     val trendingWallpapers: List<Wallpaper> = emptyList(),
     val forYouWallpapers: List<Wallpaper> = emptyList(),
-    val selectedCategory: WallpaperCategory = WallpaperCategory.AMOLED,
+    val selectedCategory: WallpaperCategory? = null,
     val isLoadingMore: Boolean = false,
     val hasNextPage: Boolean = false,
     val currentPage: Int = 1,
@@ -120,7 +120,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Success(current.copy(isLoadingMore = true))
             val nextPage = current.currentPage + 1
-            wallpaperRepository.getByCategory(current.selectedCategory, page = nextPage)
+            val request = if (current.selectedCategory != null)
+                wallpaperRepository.getByCategory(current.selectedCategory, page = nextPage)
+            else
+                wallpaperRepository.getCurated(nextPage)
+            request
                 .onSuccess { result ->
                     _uiState.update { state ->
                         val data = (state as? UiState.Success)?.data ?: HomeUiData()
