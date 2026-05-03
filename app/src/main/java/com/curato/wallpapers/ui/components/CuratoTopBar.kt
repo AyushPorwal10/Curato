@@ -63,18 +63,5 @@ fun CuratoTopBar(
                 color = colors.onSurface,
             )
         }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (showSearch) {
-                IconButton(onClick = { onSearch?.invoke() }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription = "Search",
-                        tint = colors.onSurfaceVariant,
-                        modifier = Modifier.size(22.dp),
-                    )
-                }
-            }
-            actions()
-        }
     }
 }

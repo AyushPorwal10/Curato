@@ -142,8 +142,8 @@ fun HomeScreen(
                     item {
                         Spacer(Modifier.height(28.dp))
                         SectionHeader(
-                            title = "For You",
-                            subtitle = "Based on your recent likes",
+                            title = if (data.selectedCategory == null) "For You" else "Showing for",
+                            subtitle = if (data.selectedCategory == null) "Curated Collection" else data.selectedCategory.displayName,
                             modifier = Modifier.padding(horizontal = 24.dp),
                         )
                         Spacer(Modifier.height(16.dp))

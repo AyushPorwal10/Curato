@@ -1,7 +1,7 @@
 package com.curato.wallpapers.domain.model
 
 enum class WallpaperCategory(val displayName: String, val queryTerm: String, val storageKey: String = "") {
-    AMOLED("AMOLED", "amoled dark"),
+    AMOLED("Amoled", "amoled dark"),
     MINIMAL("Minimal", "minimal clean"),
     NATURE("Nature", "nature landscape"),
     ABSTRACT("Abstract", "abstract art"),
