@@ -46,7 +46,7 @@ jobs:
         run: git checkout ${{ github.event.pull_request.base.sha }}
 
       - name: Build base release APK
-        run: ./gradlew :app:assembleRelease --no-daemon
+        run: ./gradlew :app:assembleRelease -x lintVitalRelease -x lintVitalAnalyzeRelease --no-daemon
 
       - name: Save base APK
         run: cp "${{ env.APK_PATH }}" /tmp/base.apk
@@ -56,7 +56,7 @@ jobs:
         run: git checkout ${{ github.event.pull_request.head.sha }}
 
       - name: Build PR release APK
-        run: ./gradlew :app:assembleRelease --no-daemon
+        run: ./gradlew :app:assembleRelease -x lintVitalRelease -x lintVitalAnalyzeRelease --no-daemon
 
       - name: Save PR APK
         run: cp "${{ env.APK_PATH }}" /tmp/pr.apk
@@ -79,7 +79,7 @@ jobs:
           {
             echo "### 📦 APK size diff (release)"
             echo ""
-            echo "Comparing \`main\` → this PR"
+            echo "Comparing \`${{ github.base_ref }}\` → \`${{ github.head_ref }}\`"
             echo ""
             echo "<details><summary>Full diffuse report</summary>"
             echo ""
