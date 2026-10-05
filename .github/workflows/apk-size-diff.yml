@@ -79,7 +79,7 @@ jobs:
           {
             echo "### 📦 APK size diff (release)"
             echo ""
-            echo "Comparing \`main\` → this PR"
+            echo "Comparing \`${{ github.base_ref }}\` → \`${{ github.head_ref }}\`"
             echo ""
             echo "<details><summary>Full diffuse report</summary>"
             echo ""
