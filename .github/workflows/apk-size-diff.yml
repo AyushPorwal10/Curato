@@ -1,11 +1,11 @@
 name: APK Size Diff
 
-# Runs on every PR targeting main. Builds the release APK from the base branch
-# (main) and from the PR branch, then uses jakewharton/diffuse to report the
-# size difference as a sticky PR comment.
+# Runs on every PR targeting main or develop. Builds the release APK from the
+# PR's base branch and from the PR branch, then uses jakewharton/diffuse to
+# report the size difference as a sticky PR comment.
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 # Needed so the job can post/update a comment on the PR.
 permissions:
