@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -107,16 +108,16 @@ fun FavoritesScreen(
         } else {
             LazyColumn(
                 contentPadding = PaddingValues(
-                    start = 24.dp,
-                    end = 24.dp,
+                    start = 16.dp,
+                    end = 16.dp,
                     top = 8.dp,
                     bottom = 100.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 items(uiData.favorites.chunked(2)) { row ->
-                    androidx.compose.foundation.layout.Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         row.forEach { wallpaper ->
                             WallpaperCard(

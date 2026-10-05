@@ -41,7 +41,7 @@ fun CategoryChip(
         label = "chip_bg",
     )
     val textColor by animateColorAsState(
-        targetValue = if (selected) SelectedChipText else colors.onSurfaceVariant,
+        targetValue = if (selected) colors.onPrimary else colors.onSurfaceVariant,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "chip_text",
     )

@@ -13,6 +13,7 @@ import com.curato.wallpapers.domain.common.toUiState
 import com.curato.wallpapers.domain.model.Wallpaper
 import com.curato.wallpapers.domain.model.WallpaperTarget
 import com.curato.wallpapers.domain.wallpaper.WallpaperApplier
+import com.curato.wallpapers.domain.wallpaper.WallpaperDownloader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +30,7 @@ data class DetailUiData(
     val isDownloading: Boolean = false,
     val showApplySheet: Boolean = false,
     val applyMessage: String? = null,
+    val downloadMessage: String? = null,
 )
 
 @HiltViewModel
@@ -37,6 +39,7 @@ class WallpaperDetailViewModel @Inject constructor(
     private val wallpaperRepository: WallpaperRepository,
     private val favoriteRepository: FavoriteRepository,
     private val wallpaperApplier: WallpaperApplier,
+    private val wallpaperDownloader: WallpaperDownloader,
 ) : ViewModel() {
 
     private val wallpaperId: String = checkNotNull(savedStateHandle["wallpaperId"])
@@ -56,6 +59,8 @@ class WallpaperDetailViewModel @Inject constructor(
             is WallpaperAction.ShowApplySheet -> updateSuccess { it.copy(showApplySheet = true) }
             is WallpaperAction.DismissApplySheet -> updateSuccess { it.copy(showApplySheet = false) }
             is WallpaperAction.DismissApplyMessage -> updateSuccess { it.copy(applyMessage = null) }
+            is WallpaperAction.DismissDownloadMessage -> updateSuccess { it.copy(downloadMessage = null) }
+            is WallpaperAction.DownloadWallpaper -> downloadWallpaper(action.wallpaper)
             is WallpaperAction.Retry -> loadDetail()
             else -> Unit
         }
@@ -97,6 +102,19 @@ class WallpaperDetailViewModel @Inject constructor(
                 }
                 .onError { _, message ->
                     updateSuccess { it.copy(isApplying = false, applyMessage = "Failed: $message") }
+                }
+        }
+    }
+
+    private fun downloadWallpaper(wallpaper: Wallpaper) {
+        viewModelScope.launch {
+            updateSuccess { it.copy(isDownloading = true) }
+            wallpaperDownloader.download(wallpaper)
+                .onSuccess {
+                    updateSuccess { it.copy(isDownloading = false, downloadMessage = "Saved to Pictures/Curato") }
+                }
+                .onError { _, _ ->
+                    updateSuccess { it.copy(isDownloading = false, downloadMessage = "Download failed. Try again.") }
                 }
         }
     }

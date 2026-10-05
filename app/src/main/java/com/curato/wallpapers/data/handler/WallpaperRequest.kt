@@ -13,7 +13,7 @@ sealed class WallpaperRequest {
         SEARCH,
         CATEGORY,
         DETAIL,
-        // TRENDING,   // MVP2
+        TRENDING,
         // AI_GENERATE // MVP3
     }
 
@@ -46,5 +46,12 @@ sealed class WallpaperRequest {
         val id: String,
     ) : WallpaperRequest() {
         override val type = Type.DETAIL
+    }
+
+    data class GetTrending(
+        val page: Int = 1,
+        val perPage: Int = 15,
+    ) : WallpaperRequest() {
+        override val type = Type.TRENDING
     }
 }

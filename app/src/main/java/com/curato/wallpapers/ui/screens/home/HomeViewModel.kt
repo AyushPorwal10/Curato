@@ -6,6 +6,7 @@ import com.curato.wallpapers.data.repository.FavoriteRepository
 import com.curato.wallpapers.data.repository.WallpaperRepository
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
+import com.curato.wallpapers.domain.common.getOrNull
 import com.curato.wallpapers.domain.common.onError
 import com.curato.wallpapers.domain.common.onSuccess
 import com.curato.wallpapers.domain.model.Wallpaper
@@ -21,7 +22,7 @@ import javax.inject.Inject
 data class HomeUiData(
     val trendingWallpapers: List<Wallpaper> = emptyList(),
     val forYouWallpapers: List<Wallpaper> = emptyList(),
-    val selectedCategory: WallpaperCategory = WallpaperCategory.AMOLED,
+    val selectedCategory: WallpaperCategory? = null,
     val isLoadingMore: Boolean = false,
     val hasNextPage: Boolean = false,
     val currentPage: Int = 1,
@@ -75,13 +76,15 @@ class HomeViewModel @Inject constructor(
     private fun loadInitial() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            wallpaperRepository.getCurated(page = 1).onSuccess { result ->
-                val trending = applyFavorites(result.items.take(6))
-                val forYou = applyFavorites(result.items.drop(6))
+            val trendingResult = wallpaperRepository.getTrending(page = 1, perPage = 6)
+            val curatedResult = wallpaperRepository.getCurated(page = 1)
+
+            val trending = trendingResult.getOrNull()?.items?.let(::applyFavorites) ?: emptyList()
+            curatedResult.onSuccess { result ->
                 _uiState.value = UiState.Success(
                     HomeUiData(
                         trendingWallpapers = trending,
-                        forYouWallpapers = forYou,
+                        forYouWallpapers = applyFavorites(result.items),
                         hasNextPage = result.hasNextPage,
                         currentPage = result.currentPage,
                     )
@@ -120,7 +123,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = UiState.Success(current.copy(isLoadingMore = true))
             val nextPage = current.currentPage + 1
-            wallpaperRepository.getByCategory(current.selectedCategory, page = nextPage)
+            val request = if (current.selectedCategory != null)
+                wallpaperRepository.getByCategory(current.selectedCategory, page = nextPage)
+            else
+                wallpaperRepository.getCurated(nextPage)
+            request
                 .onSuccess { result ->
                     _uiState.update { state ->
                         val data = (state as? UiState.Success)?.data ?: HomeUiData()

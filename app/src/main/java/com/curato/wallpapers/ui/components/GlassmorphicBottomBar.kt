@@ -101,7 +101,7 @@ private fun BottomBarItem(
                 Icon(
                     imageVector = destination.selectedIcon,
                     contentDescription = destination.label,
-                    tint = Color.White,
+                    tint = colors.primary,
                     modifier = Modifier.size(20.dp),
                 )
             }

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- System splash theme — black bg, no icon → seamless with custom GIF splash -->
+    <style name="Theme.Curato.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@android:color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_transparent_icon</item>
+        <item name="windowSplashScreenIconBackgroundColor">@android:color/black</item>
+        <item name="postSplashScreenTheme">@style/Theme.Curato</item>
+    </style>
+
     <!-- Curato is Compose-only. Base theme is minimal — Compose owns all rendering. -->
     <style name="Theme.Curato" parent="android:Theme.Material.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>

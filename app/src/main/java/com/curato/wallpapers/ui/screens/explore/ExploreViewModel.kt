@@ -4,15 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.curato.wallpapers.data.repository.FavoriteRepository
 import com.curato.wallpapers.data.repository.WallpaperRepository
+import com.curato.wallpapers.domain.common.Result
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
 import com.curato.wallpapers.domain.common.onError
 import com.curato.wallpapers.domain.common.onSuccess
 import com.curato.wallpapers.domain.model.Wallpaper
 import com.curato.wallpapers.domain.model.WallpaperCategory
+import com.curato.wallpapers.domain.wallpaper.SearchWallpapersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,6 +26,7 @@ data class ExploreUiData(
     val searchQuery: String = "",
     val selectedCategory: WallpaperCategory? = null,
     val isSearchActive: Boolean = false,
+    val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val hasNextPage: Boolean = false,
     val currentPage: Int = 1,
@@ -34,16 +36,55 @@ data class ExploreUiData(
 class ExploreViewModel @Inject constructor(
     private val wallpaperRepository: WallpaperRepository,
     private val favoriteRepository: FavoriteRepository,
+    private val searchWallpapersUseCase: SearchWallpapersUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<ExploreUiData>>(UiState.Loading)
     val uiState: StateFlow<UiState<ExploreUiData>> = _uiState.asStateFlow()
 
     private val _favoriteIds = MutableStateFlow<Set<String>>(emptySet())
-    private var searchJob: Job? = null
+    private val searchQueryFlow = MutableStateFlow<String>("")
     private var loadCuratedJob: Job? = null
 
     init {
+        // This is not a correct place for execution below stuff TODO: Temporary Change
+        handleFavourites()
+        setUpSearch()
+        dispatch(WallpaperAction.LoadCurated)
+    }
+
+    private fun setUpSearch() {
+        viewModelScope.launch {
+            searchWallpapersUseCase(searchQueryFlow).collect { result ->
+                when (result) {
+                    is Result.Loading -> {
+                        _uiState.update { state ->
+                            val data = (state as? UiState.Success)?.data ?: ExploreUiData()
+                            UiState.Success(data.copy(isLoading = true))
+                        }
+                    }
+                    is Result.Success -> {
+                        _uiState.update { state ->
+                            val data = (state as? UiState.Success)?.data ?: ExploreUiData()
+                            UiState.Success(
+                                data.copy(
+                                    wallpapers = applyFavorites(result.data.items),
+                                    isLoading = false,
+                                    hasNextPage = result.data.hasNextPage,
+                                    currentPage = 1,
+                                )
+                            )
+                        }
+                    }
+                    is Result.Empty -> loadCurated()
+                    is Result.Error -> _uiState.value = UiState.Error(result.message)
+                }
+            }
+        }
+    }
+
+
+    private fun handleFavourites() {
         viewModelScope.launch {
             favoriteRepository.observeFavorites().collect { favorites ->
                 _favoriteIds.value = favorites.map { it.id }.toSet()
@@ -59,8 +100,9 @@ class ExploreViewModel @Inject constructor(
                 }
             }
         }
-        dispatch(WallpaperAction.LoadCurated)
     }
+
+    
 
     private fun applyFavorites(wallpapers: List<Wallpaper>) =
         wallpapers.map { it.copy(isFavorite = it.id in _favoriteIds.value) }
@@ -115,39 +157,15 @@ class ExploreViewModel @Inject constructor(
             val data = (state as? UiState.Success)?.data ?: ExploreUiData()
             UiState.Success(data.copy(searchQuery = query, isSearchActive = query.isNotBlank()))
         }
-        if (query.isBlank()) {
-            searchJob?.cancel()
-            loadCurated()
-            return
-        }
-        searchJob?.cancel()
-        loadCuratedJob?.cancel()
-        searchJob = viewModelScope.launch {
-            delay(400) // debounce
-            wallpaperRepository.search(query).onSuccess { result ->
-                _uiState.update { state ->
-                    val data = (state as? UiState.Success)?.data ?: ExploreUiData()
-                    UiState.Success(
-                        data.copy(
-                            wallpapers = applyFavorites(result.items),
-                            isLoadingMore = false,
-                            hasNextPage = result.hasNextPage,
-                            currentPage = 1,
-                        )
-                    )
-                }
-            }.onError { _, message ->
-                _uiState.value = UiState.Error(message)
-            }
-        }
+        searchQueryFlow.value = query
     }
 
     private fun clearSearch() {
+        searchQueryFlow.value = ""
         _uiState.update { state ->
             val data = (state as? UiState.Success)?.data ?: ExploreUiData()
             UiState.Success(data.copy(searchQuery = "", isSearchActive = false))
         }
-        loadCurated()
     }
 
     private fun filterByCategory(category: WallpaperCategory) {

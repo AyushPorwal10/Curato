@@ -25,10 +25,11 @@ object AppDestinations {
         ).sortedBy { it.order }
     }
 
-    val startRoute: String get() = tabs.first().route
+    val startRoute: String get() = SPLASH_ROUTE
 
     // ── Non-tab routes ─────────────────────────────────────────────────────
-    const val DETAIL_ROUTE = "detail/{wallpaperId}"
+    const val SPLASH_ROUTE  = "splash"
+    const val DETAIL_ROUTE  = "detail/{wallpaperId}"
     fun detailRoute(wallpaperId: String) = "detail/$wallpaperId"
 
     const val TRENDING_ROUTE = "trending"

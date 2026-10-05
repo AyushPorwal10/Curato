@@ -82,8 +82,8 @@ fun TrendingScreen(
 
                     items(data.wallpapers.chunked(2)) { row ->
                         androidx.compose.foundation.layout.Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.padding(horizontal = 24.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.padding(horizontal = 16.dp),
                         ) {
                             row.forEach { wallpaper ->
                                 WallpaperCard(

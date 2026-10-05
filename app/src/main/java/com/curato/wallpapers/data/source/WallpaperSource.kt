@@ -26,4 +26,8 @@ interface WallpaperSource {
     ): SourceWallpapersPage
 
     suspend fun getById(id: String): SourceWallpaperDto
+
+    // Default falls back to curated for sources that have no trending concept (e.g. Pexels)
+    suspend fun getTrending(page: Int, perPage: Int): SourceWallpapersPage =
+        getCurated(page, perPage)
 }
