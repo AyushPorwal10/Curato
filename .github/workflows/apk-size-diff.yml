@@ -1,0 +1,106 @@
+name: APK Size Diff
+
+# Runs on every PR targeting main. Builds the release APK from the base branch
+# (main) and from the PR branch, then uses jakewharton/diffuse to report the
+# size difference as a sticky PR comment.
+on:
+  pull_request:
+    branches: [ main ]
+
+# Needed so the job can post/update a comment on the PR.
+permissions:
+  contents: read
+  pull-requests: write
+
+# If you push again quickly, cancel the older in-progress run for this PR.
+concurrency:
+  group: apk-size-diff-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  DIFFUSE_VERSION: "0.3.0"
+  # Gradle task + resulting artifact for the minified release build.
+  APK_PATH: "app/build/outputs/apk/release/app-release-unsigned.apk"
+
+jobs:
+  size-diff:
+    runs-on: ubuntu-latest
+    steps:
+      # Full history so we can check out the PR's base commit later.
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      # ---- Build the BASE (main) APK ----
+      - name: Check out base commit
+        run: git checkout ${{ github.event.pull_request.base.sha }}
+
+      - name: Build base release APK
+        run: ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Save base APK
+        run: cp "${{ env.APK_PATH }}" /tmp/base.apk
+
+      # ---- Build the PR (head) APK ----
+      - name: Check out PR head commit
+        run: git checkout ${{ github.event.pull_request.head.sha }}
+
+      - name: Build PR release APK
+        run: ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Save PR APK
+        run: cp "${{ env.APK_PATH }}" /tmp/pr.apk
+
+      # ---- Run diffuse ----
+      - name: Download diffuse
+        run: |
+          curl -L -o /tmp/diffuse.zip \
+            "https://github.com/JakeWharton/diffuse/releases/download/${DIFFUSE_VERSION}/diffuse-${DIFFUSE_VERSION}.zip"
+          unzip -q /tmp/diffuse.zip -d /tmp/diffuse
+
+      - name: Diff APKs
+        run: |
+          chmod +x /tmp/diffuse/diffuse-${DIFFUSE_VERSION}/bin/diffuse
+          /tmp/diffuse/diffuse-${DIFFUSE_VERSION}/bin/diffuse \
+            diff /tmp/base.apk /tmp/pr.apk | tee /tmp/diff.txt
+
+      - name: Build comment body
+        run: |
+          {
+            echo "### 📦 APK size diff (release)"
+            echo ""
+            echo "Comparing \`main\` → this PR"
+            echo ""
+            echo "<details><summary>Full diffuse report</summary>"
+            echo ""
+            echo '```'
+            cat /tmp/diff.txt
+            echo '```'
+            echo ""
+            echo "</details>"
+          } > /tmp/comment.md
+
+      - name: Post sticky PR comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: apk-size-diff
+          path: /tmp/comment.md
+
+      # Keep both APKs as downloadable artifacts for manual inspection.
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: |
+            /tmp/base.apk
+            /tmp/pr.apk

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Download
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.IosShare
@@ -87,6 +88,14 @@ fun WallpaperDetailScreen(
                     data.applyMessage?.let {
                         snackbarHostState.showSnackbar(it)
                         viewModel.dispatch(WallpaperAction.DismissApplyMessage)
+                    }
+                }
+
+                // Show snackbar when download completes
+                LaunchedEffect(data.downloadMessage) {
+                    data.downloadMessage?.let {
+                        snackbarHostState.showSnackbar(it)
+                        viewModel.dispatch(WallpaperAction.DismissDownloadMessage)
                     }
                 }
 
@@ -212,13 +221,27 @@ fun WallpaperDetailScreen(
                         Spacer(Modifier.width(4.dp))
 
                         // Download icon button
-                        IconButton(onClick = { /* TODO */ }) {
-                            Icon(
-                                imageVector = Icons.Rounded.Download,
-                                contentDescription = "Download",
-                                tint = colors.onSurface,
-                                modifier = Modifier.size(24.dp),
-                            )
+                        IconButton(
+                            onClick = {
+                                if (!data.isDownloading) {
+                                    viewModel.dispatch(WallpaperAction.DownloadWallpaper(wallpaper))
+                                }
+                            },
+                        ) {
+                            if (data.isDownloading) {
+                                CircularProgressIndicator(
+                                    color = colors.primary,
+                                    strokeWidth = 2.dp,
+                                    modifier = Modifier.size(22.dp),
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Rounded.Download,
+                                    contentDescription = "Download",
+                                    tint = colors.onSurface,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
                         }
 
                         Spacer(Modifier.width(12.dp))

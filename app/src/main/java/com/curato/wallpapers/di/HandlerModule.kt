@@ -6,6 +6,7 @@ import com.curato.wallpapers.data.handler.impl.CategoryWallpaperHandler
 import com.curato.wallpapers.data.handler.impl.CuratedWallpaperHandler
 import com.curato.wallpapers.data.handler.impl.DetailWallpaperHandler
 import com.curato.wallpapers.data.handler.impl.SearchWallpaperHandler
+import com.curato.wallpapers.data.handler.impl.TrendingWallpaperHandler
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -53,5 +54,12 @@ abstract class HandlerModule {
     @HandlerKey(WallpaperRequest.Type.DETAIL)
     abstract fun bindDetailHandler(
         handler: DetailWallpaperHandler,
+    ): WallpaperHandler<*, *>
+
+    @Binds
+    @IntoMap
+    @HandlerKey(WallpaperRequest.Type.TRENDING)
+    abstract fun bindTrendingHandler(
+        handler: TrendingWallpaperHandler,
     ): WallpaperHandler<*, *>
 }

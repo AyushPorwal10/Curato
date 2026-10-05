@@ -82,6 +82,19 @@ class FirebaseWallpaperSource @Inject constructor(
         )
     }
 
+    override suspend fun getTrending(page: Int, perPage: Int): SourceWallpapersPage {
+        val key = "trending"
+        return executePagedQuery(
+            key = key,
+            page = page,
+            perPage = perPage,
+            baseQuery = wallpapersCol
+                .whereEqualTo(FIELD_IS_TRENDING, true)
+                .whereEqualTo(FIELD_IS_ACTIVE, true)
+                .orderBy(FIELD_CREATED_AT, Query.Direction.DESCENDING),
+        )
+    }
+
     override suspend fun getById(id: String): SourceWallpaperDto {
         val snapshot = wallpapersCol.document(id).get().await()
         return snapshot.toSourceDto()
@@ -143,6 +156,7 @@ class FirebaseWallpaperSource @Inject constructor(
                 category = getString(FIELD_CATEGORY),
                 tags = (get(FIELD_TAGS) as? List<*>)?.filterIsInstance<String>() ?: emptyList(),
                 sourceType = SourceType.FIREBASE,
+                isTrending = getBoolean(FIELD_IS_TRENDING) ?: false,
             )
         } catch (_: Exception) {
             null
@@ -165,6 +179,7 @@ class FirebaseWallpaperSource @Inject constructor(
         const val FIELD_CATEGORY = "category"
         const val FIELD_TAGS = "tags"
         const val FIELD_IS_CURATED = "isCurated"
+        const val FIELD_IS_TRENDING = "isTrending"
         const val FIELD_IS_ACTIVE = "isActive"
         const val FIELD_CREATED_AT = "createdAt"
     }

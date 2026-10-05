@@ -79,7 +79,7 @@ class TrendingViewModel @Inject constructor(
                     UiState.Success(data.copy(isLoadingMore = true))
                 }
             }
-            wallpaperRepository.getCurated(page = page).onSuccess { result ->
+            wallpaperRepository.getTrending(page = page).onSuccess { result ->
                 _uiState.update { state ->
                     val current = (state as? UiState.Success)?.data ?: TrendingUiData()
                     UiState.Success(

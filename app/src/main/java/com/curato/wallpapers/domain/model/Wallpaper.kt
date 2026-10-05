@@ -19,6 +19,7 @@ data class Wallpaper(
     val format: String = "JPEG",
     val curatedBy: String = "Curato Studio",
     val isFavorite: Boolean = false,
+    val isTrending: Boolean = false,
     val source: WallpaperSourceType = WallpaperSourceType.PEXELS,
 )
 

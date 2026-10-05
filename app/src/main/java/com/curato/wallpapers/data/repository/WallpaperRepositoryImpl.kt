@@ -38,4 +38,9 @@ class WallpaperRepositoryImpl @Inject constructor(
         handlerFactory
             .getHandler<WallpaperRequest.GetDetail, Wallpaper>(WallpaperRequest.Type.DETAIL)
             .handle(WallpaperRequest.GetDetail(id))
+
+    override suspend fun getTrending(page: Int, perPage: Int): Result<PaginatedResult<Wallpaper>> =
+        handlerFactory
+            .getHandler<WallpaperRequest.GetTrending, PaginatedResult<Wallpaper>>(WallpaperRequest.Type.TRENDING)
+            .handle(WallpaperRequest.GetTrending(page, perPage))
 }

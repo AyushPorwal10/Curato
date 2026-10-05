@@ -32,6 +32,7 @@ sealed class WallpaperAction {
     object ShowApplySheet : WallpaperAction()
     object DismissApplySheet : WallpaperAction()
     object DismissApplyMessage : WallpaperAction()
+    object DismissDownloadMessage : WallpaperAction()
 
     data class DownloadWallpaper(val wallpaper: Wallpaper) : WallpaperAction()
 

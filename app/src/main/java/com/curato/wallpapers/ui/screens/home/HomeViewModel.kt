@@ -6,6 +6,7 @@ import com.curato.wallpapers.data.repository.FavoriteRepository
 import com.curato.wallpapers.data.repository.WallpaperRepository
 import com.curato.wallpapers.domain.common.UiState
 import com.curato.wallpapers.domain.common.WallpaperAction
+import com.curato.wallpapers.domain.common.getOrNull
 import com.curato.wallpapers.domain.common.onError
 import com.curato.wallpapers.domain.common.onSuccess
 import com.curato.wallpapers.domain.model.Wallpaper
@@ -75,13 +76,15 @@ class HomeViewModel @Inject constructor(
     private fun loadInitial() {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
-            wallpaperRepository.getCurated(page = 1).onSuccess { result ->
-                val trending = applyFavorites(result.items.take(6))
-                val forYou = applyFavorites(result.items.drop(6))
+            val trendingResult = wallpaperRepository.getTrending(page = 1, perPage = 6)
+            val curatedResult = wallpaperRepository.getCurated(page = 1)
+
+            val trending = trendingResult.getOrNull()?.items?.let(::applyFavorites) ?: emptyList()
+            curatedResult.onSuccess { result ->
                 _uiState.value = UiState.Success(
                     HomeUiData(
                         trendingWallpapers = trending,
-                        forYouWallpapers = forYou,
+                        forYouWallpapers = applyFavorites(result.items),
                         hasNextPage = result.hasNextPage,
                         currentPage = result.currentPage,
                     )

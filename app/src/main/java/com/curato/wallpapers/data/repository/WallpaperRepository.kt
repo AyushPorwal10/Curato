@@ -10,4 +10,5 @@ interface WallpaperRepository {
     suspend fun search(query: String, page: Int = 1, perPage: Int = 15): Result<PaginatedResult<Wallpaper>>
     suspend fun getByCategory(category: WallpaperCategory, page: Int = 1, perPage: Int = 15): Result<PaginatedResult<Wallpaper>>
     suspend fun getById(id: String): Result<Wallpaper>
+    suspend fun getTrending(page: Int = 1, perPage: Int = 15): Result<PaginatedResult<Wallpaper>>
 }

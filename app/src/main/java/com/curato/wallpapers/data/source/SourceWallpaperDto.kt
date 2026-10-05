@@ -24,6 +24,7 @@ data class SourceWallpaperDto(
     val category: String?,
     val tags: List<String>,
     val sourceType: SourceType,
+    val isTrending: Boolean = false,
 )
 
 /**

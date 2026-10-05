@@ -44,6 +44,7 @@ class WallpaperMapper @Inject constructor() {
             resolution = "${dto.width} × ${dto.height}",
             format = "JPEG",
             curatedBy = dto.authorName.ifBlank { "Curato Studio" },
+            isTrending = dto.isTrending,
             source = dto.sourceType.toDomainSourceType(),
         )
     }
